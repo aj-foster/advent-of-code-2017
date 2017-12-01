@@ -8,14 +8,13 @@
 defmodule Advent1 do
   @moduledoc """
   This module exports one function, parse/1, which accepts a list of numbers
-  as a charlist (somewhat curiously). It returns the tally described in the
-  day 1 exercise.
+  representing the digits. It returns the tally described in the day 1 exercise.
   """
 
   @doc """
-  Accept a number as a character list of digits and return the tally.
+  Accept a number as a integer list of digits and return the tally.
   """
-  @type parse(nonempty_charlist) :: integer
+  @spec parse(list(integer)) :: integer
   def parse(number) do
     first = number
     |> Enum.at(0)
@@ -30,10 +29,7 @@ defmodule Advent1 do
 
   # Case: Two consecutive numbers are the same. Add number to recursive call.
   defp tally([a, a | tail], first) do
-    [a]
-    |> List.to_string()
-    |> String.to_integer()
-    |> Kernel.+(tally([a | tail], first))
+    a + tally([a | tail], first)
   end
 
   # Case: Two different consecutive numbers. Return recursive call.
@@ -42,11 +38,7 @@ defmodule Advent1 do
   end
 
   # Base case: last digit in the list is the same as the first. Return digit.
-  defp tally([a], a) do
-    [a]
-    |> List.to_string()
-    |> String.to_integer()
-  end
+  defp tally([a], a), do: a
 
   # Base case: last digit in the list is different from the first. Return 0.
   defp tally([a], b) when b != a, do: 0
@@ -54,9 +46,14 @@ end
 
 
 # Accept a number as a string from standard input, change it to a character
-# list, and begin the parsing.
+# list, convert it to a list of digits, then parse.
 #
 System.argv()
 |> Enum.at(0)
 |> String.to_charlist()
+|> Enum.map(fn(x) ->
+  [x]
+  |> List.to_string()
+  |> String.to_integer()
+end)
 |> Advent1.parse()
