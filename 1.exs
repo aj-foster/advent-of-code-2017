@@ -30,6 +30,8 @@ defmodule Advent1 do
 
 
   # tally/2 is a recursive function that acts on the integer list of digits.
+  @spec tally(list(integer), integer) :: integer
+  defp tally(list, first)
 
   # Case: Two consecutive numbers are the same. Add number to recursive call.
   defp tally([a, a | tail], first) do
@@ -65,6 +67,8 @@ defmodule Advent1 do
 
 
   # tally2/2 is a recursive function that acts on the integer list of digits.
+  @spec tally2(list(integer), list(integer)) :: integer
+  defp tally2(first_half, second_half)
 
   # Base case: last digits of the lists match. Return digit.
   defp tally2([a], [a]), do: a
