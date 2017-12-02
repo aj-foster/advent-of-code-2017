@@ -21,7 +21,6 @@ defmodule Advent1 do
 
     number
     |> tally(first)
-    |> IO.inspect(label: "Tally")
   end
 
 
@@ -42,13 +41,45 @@ defmodule Advent1 do
 
   # Base case: last digit in the list is different from the first. Return 0.
   defp tally([a], b) when b != a, do: 0
+
+
+  @doc """
+  """
+  @spec parse2(list(integer)) :: integer
+  def parse2(number) do
+    length = number
+    |> Enum.count()
+
+    {half1, half2} = number
+    |> Enum.split(Integer.floor_div(length, 2))
+
+    tally2(half1, half2)
+    |> Kernel.*(2)
+  end
+
+
+  defp tally2([a], [a]), do: a
+
+
+  defp tally2([a], [b]) when b != a, do: 0
+
+
+  defp tally2([a | tail1], [a | tail2]) do
+    a + tally2(tail1, tail2)
+  end
+
+
+  defp tally2([a | tail1], [b | tail2]) when b != a do
+    tally2(tail1, tail2)
+  end
+
 end
 
 
 # Accept a number as a string from standard input, change it to a character
 # list, convert it to a list of digits, then parse.
 #
-System.argv()
+number = System.argv()
 |> Enum.at(0)
 |> String.to_charlist()
 |> Enum.map(fn(x) ->
@@ -56,4 +87,11 @@ System.argv()
   |> List.to_string()
   |> String.to_integer()
 end)
+
+number
 |> Advent1.parse()
+|> IO.inspect(label: "Tally 1")
+
+number
+|> Advent1.parse2()
+|> IO.inspect(label: "Tally 2")
