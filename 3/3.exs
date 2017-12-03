@@ -90,67 +90,19 @@ defmodule Advent3 do
   end
 
   defp ene_or_ese(number, ring) do
-    case (number <~> east(ring)) do
-      -1 ->
-        # East South East
-        east(ring) - number + ring
-
-      0 ->
-        # Exactly East
-        ring
-
-      1 ->
-        # East North East
-        number - east(ring) + ring
-    end
+    abs(number - east(ring)) + ring
   end
 
   defp nne_or_nnw(number, ring) do
-    case (number <~> north(ring)) do
-      -1 ->
-        # North Northeast
-        north(ring) - number + ring
-
-      0 ->
-        # Exactly North
-        ring
-
-      1 ->
-        # North North West
-        number - north(ring) + ring
-    end
+    abs(number - north(ring)) + ring
   end
 
   defp wnw_or_wsw(number, ring) do
-    case (number <~> west(ring)) do
-      -1 ->
-        # West Northwest
-        west(ring) - number + ring
-
-      0 ->
-        # Exactly West
-        ring
-
-      1 ->
-        # West Southwest
-        number - west(ring) + ring
-    end
+    abs(number - west(ring)) + ring
   end
 
   defp ssw_or_sse(number, ring) do
-    case (number <~> south(ring)) do
-      -1 ->
-        # South Southwest
-        south(ring) - number + ring
-
-      0 ->
-        # Exactly South
-        ring
-
-      1 ->
-        # South Southeast
-        number - south(ring) + ring
-    end
+    abs(number - south(ring)) + ring
   end
 end
 
