@@ -62,16 +62,37 @@ defmodule Advent2 do
   end
 
   # Find the distinct pair of divisible numbers and calculate the division.
+  #
+  # This function attempts to optimize the number of remainder checks performed
+  # by using a few concepts:
+  #
+  # - a number divides at least one of (b, c, d) only if it divides (b * c * d)
+  # - If x > y, x cannot divide y.
+  #
   @spec division(list(integer), integer) :: integer
   defp division(row, sum) do
+    # Calculate the product of all numbers in the list. This is an O(n) effort
+    # that, together with finding the list of divisors, reduces the number of
+    # remainder checks for my data set by 33%.
+    product = row
+    |> Enum.reduce(1, &Kernel.*/2)
+
+    # Find which numbers in the list divide the product of all other numbers.
+    # We use an equivalent calculation, that the number squared divides the
+    # product of every number, including itself.
+    divisors = row
+    |> Enum.filter(fn (x) ->
+      rem(product, x * x) == 0
+    end)
+
     # Our outer reduction checks if the given element is a dividend.
     row
     |> Enum.reduce_while(0, fn (a, _acc) ->
       # Our inner reduction checks if the given element is a divisor of a.
-      row
+      divisors
       |> Enum.find(fn (b) ->
         # Explicitly ignore the case of a / a = 1 r 0.
-        a != b
+        a > b
         && rem(a, b) == 0
       end)
       |> case do
