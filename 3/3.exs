@@ -3,13 +3,14 @@
 #
 
 defmodule Advent3 do
-  defp east(ring), do: (4 * :math.pow(ring, 2) - 3 * ring + 1)
-  defp north_east(ring), do: (4 * :math.pow(ring, 2) - 2 * ring + 1)
-  defp north(ring), do: (4 * :math.pow(ring, 2) - ring + 1)
-  defp north_west(ring), do: (4 * :math.pow(ring, 2) + 1)
-  defp west(ring), do: (4 * :math.pow(ring, 2) + ring + 1)
-  defp south_west(ring), do: (4 * :math.pow(ring, 2) + 2 * ring + 1)
-  defp south(ring), do: (4 * :math.pow(ring, 2) + 3 * ring + 1)
+  defp east(ring), do: trunc(4 * :math.pow(ring, 2) - 3 * ring + 1)
+  defp north_east(ring), do: trunc(4 * :math.pow(ring, 2) - 2 * ring + 1)
+  defp north(ring), do: trunc(4 * :math.pow(ring, 2) - ring + 1)
+  defp north_west(ring), do: trunc(4 * :math.pow(ring, 2) + 1)
+  defp west(ring), do: trunc(4 * :math.pow(ring, 2) + ring + 1)
+  defp south_west(ring), do: trunc(4 * :math.pow(ring, 2) + 2 * ring + 1)
+  defp south(ring), do: trunc(4 * :math.pow(ring, 2) + 3 * ring + 1)
+  defp south_east(ring), do: trunc(4 * :math.pow(ring, 2) + 4 * ring + 1)
 
   defp a <~> b do
     c = a - b
@@ -104,6 +105,115 @@ defmodule Advent3 do
   defp ssw_or_sse(number, ring) do
     abs(number - south(ring)) + ring
   end
+
+
+
+  def sum_after(number) do
+    sum_after([1, 1, 2, 4, 5, 10, 11, 23, 25, 26], number)
+  end
+
+  defp sum_after(sums, number) do
+    i = Enum.count(sums) + 1
+    r = ring(i)
+    prev = Enum.at(sums, i - 2)
+
+    next = cond do
+      i == south_east(r - 1) + 1 ->
+        prev +
+        Enum.at(sums, south_east(r - 2))
+
+      i == south_east(r - 1) + 2 ->
+        prev +
+        Enum.at(sums, i - 3) +
+        Enum.at(sums, south_east(r - 2) + 1) +
+        Enum.at(sums, south_east(r - 2))
+
+      i < north_east(r) - 1 ->
+        prev +
+        Enum.at(sums, i - 8 * r + 5) +
+        Enum.at(sums, i - 8 * r + 6) +
+        Enum.at(sums, i - 8 * r + 7)
+
+      i == north_east(r) - 1 ->
+        prev +
+        Enum.at(sums, north_east(r - 1) - 1) +
+        Enum.at(sums, north_east(r - 1) - 2)
+
+      i == north_east(r) ->
+        prev +
+        Enum.at(sums, north_east(r - 1) - 1)
+
+      i == north_east(r) + 1 ->
+        prev +
+        Enum.at(sums, i - 3) +
+        Enum.at(sums, north_east(r - 1)) +
+        Enum.at(sums, north_east(r - 1) - 1)
+
+      i < north_west(r) - 1 ->
+        prev +
+        Enum.at(sums, i - 8 * r + 3) +
+        Enum.at(sums, i - 8 * r + 4) +
+        Enum.at(sums, i - 8 * r + 5)
+
+      i == north_west(r) - 1 ->
+        prev +
+        Enum.at(sums, north_west(r - 1) - 1) +
+        Enum.at(sums, north_west(r - 1) - 2)
+
+      i == north_west(r) ->
+        prev +
+        Enum.at(sums, north_west(r - 1) - 1)
+
+      i == north_west(r) + 1 ->
+        prev +
+        Enum.at(sums, i - 3) +
+        Enum.at(sums, north_west(r - 1)) +
+        Enum.at(sums, north_west(r - 1) - 1)
+
+      i < south_west(r) - 1 ->
+        prev +
+        Enum.at(sums, i - 8 * r + 1) +
+        Enum.at(sums, i - 8 * r + 2) +
+        Enum.at(sums, i - 8 * r + 3)
+
+      i == south_west(r) - 1 ->
+        prev +
+        Enum.at(sums, south_west(r - 1) - 1) +
+        Enum.at(sums, south_west(r - 1) - 2)
+
+      i == south_west(r) ->
+        prev +
+        Enum.at(sums, south_west(r - 1) - 1)
+
+      i == south_west(r) + 1 ->
+        prev +
+        Enum.at(sums, i - 3) +
+        Enum.at(sums, south_west(r - 1)) +
+        Enum.at(sums, south_west(r - 1) - 1)
+
+      i < south_east(r) ->
+        prev +
+        Enum.at(sums, i - 8 * r - 1) +
+        Enum.at(sums, i - 8 * r ) +
+        Enum.at(sums, i - 8 * r + 1)
+
+      i == south_east(r) ->
+        prev +
+        Enum.at(sums, south_east(r - 1)) +
+        Enum.at(sums, south_east(r - 1) - 1)
+
+      true ->
+        raise "Unknown case for #{i}"
+    end
+
+    cond do
+      next <= number ->
+        sum_after(sums ++ [next], number)
+
+      true ->
+        next
+    end
+  end
 end
 
 number = System.argv()
@@ -113,3 +223,7 @@ number = System.argv()
 number
 |> Advent3.distance()
 |> IO.inspect(label: "Distance")
+
+number
+|> Advent3.sum_after()
+|> IO.inspect(label: "Sum after")
