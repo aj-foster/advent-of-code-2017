@@ -42,18 +42,9 @@ defmodule Advent2 do
   # Calculate the difference between the maximum and minimum row elements.
   @spec difference(list(integer), integer) :: integer
   defp difference(row, sum) do
-    # Begin by assuming the first element is both the max and the min.
-    start = row
-    |> Enum.at(0)
-
-    # Reduce the row, returning the min/max as a tuple.
+    # Find the minimum and maximum elements of the row.
     {min, max} = row
-    |> Enum.reduce({start, start}, fn (x, acc) ->
-      min = if elem(acc, 0) < x, do: elem(acc, 0), else: x
-      max = if elem(acc, 1) > x, do: elem(acc, 1), else: x
-
-      {min, max}
-    end)
+    |> Enum.min_max()
 
     # Add the row's difference to our accumulated sum.
     sum + (max - min)
