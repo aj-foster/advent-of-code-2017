@@ -88,6 +88,7 @@ defmodule Advent3 do
   #
   #   r = (1/2) * sqrt(x) - (1/2)
   #
+  @spec ring(integer) :: integer
   defp ring(number) do
     (0.5 * :math.sqrt(number) - 0.5)
     |> Float.ceil()
@@ -95,6 +96,7 @@ defmodule Advent3 do
   end
 
   # First step: divide between the North+East side and the South+West side.
+  @spec west_or_south(integer, integer) :: integer
   defp northeast_or_southwest(number, ring) do
     case number - north_west(ring) do
       x when x < 0 ->
@@ -113,6 +115,7 @@ defmodule Advent3 do
   end
 
   # Second step: divide between the North quarter and the East quarter.
+  @spec west_or_south(integer, integer) :: integer
   defp north_or_east(number, ring) do
     case number - north_east(ring) do
       x when x < 0 ->
@@ -131,6 +134,7 @@ defmodule Advent3 do
   end
 
   # Second step: divide between the West quarter and the South quarter.
+  @spec west_or_south(integer, integer) :: integer
   defp west_or_south(number, ring) do
     case number - south_west(ring) do
       x when x < 0 ->
@@ -148,124 +152,217 @@ defmodule Advent3 do
     end
   end
 
+  # Part 2:
 
+  @doc """
+  Accepts a positive integer and returns the next sum that appears in the
+  modified grid described in part 2.
 
+  We begin the recursive calls with a number of prefilled entries. This allows
+  us to ignore a number of special cases that occur due to the first ring. The
+  recursive calls will add on to the array of known sums until the desired
+  number is found.
+  """
+  @spec sum_after(integer) :: integer
   def sum_after(number) do
     sum_after([1, 1, 2, 4, 5, 10, 11, 23, 25, 26], number)
   end
 
+  # Find the next sum and continue or return if the desired number is found.
+  #
+  # This function is a giant conditional that looks at the position of the next
+  # number to find and picks out the other numbers necessary to sum.
+  #
+  @spec sum_after(list(integer), integer) :: integer
   defp sum_after(sums, number) do
     i = Enum.count(sums) + 1
     r = ring(i)
     prev = Enum.at(sums, i - 2)
 
-    next = cond do
+    next = prev + cond do
+      #
+      #  x |
+      # ---/
+      #  p   *
+      #
       i == south_east(r - 1) + 1 ->
-        prev +
         Enum.at(sums, south_east(r - 2))
 
+      #
+      #  x | *
+      # ---/
+      #  x   p
+      #
       i == south_east(r - 1) + 2 ->
-        prev +
         Enum.at(sums, i - 3) +
         Enum.at(sums, south_east(r - 2) + 1) +
         Enum.at(sums, south_east(r - 2))
 
+      #
+      #  x |
+      #    |
+      #  x | *
+      #    |
+      #  x | p
+      #
       i < north_east(r) - 1 ->
-        prev +
         Enum.at(sums, i - 8 * r + 5) +
         Enum.at(sums, i - 8 * r + 6) +
         Enum.at(sums, i - 8 * r + 7)
 
+      #
+      # ---\
+      #  x | *
+      #    |
+      #  x | p
+      #
       i == north_east(r) - 1 ->
-        prev +
         Enum.at(sums, north_east(r - 1) - 1) +
         Enum.at(sums, north_east(r - 1) - 2)
 
+      #
+      #      *
+      # ---\
+      #  x | p
+      #
       i == north_east(r) ->
-        prev +
         Enum.at(sums, north_east(r - 1) - 1)
 
+      #
+      #     *   p
+      # ------\
+      #  x  x | x
+      #
       i == north_east(r) + 1 ->
-        prev +
         Enum.at(sums, i - 3) +
         Enum.at(sums, north_east(r - 1)) +
         Enum.at(sums, north_east(r - 1) - 1)
 
+      #
+      #     *  p
+      # ---------
+      #  x  x  x
+      #
       i < north_west(r) - 1 ->
-        prev +
         Enum.at(sums, i - 8 * r + 3) +
         Enum.at(sums, i - 8 * r + 4) +
         Enum.at(sums, i - 8 * r + 5)
 
+      #
+      #   *  p
+      # /-----
+      # | x  x
+      #
       i == north_west(r) - 1 ->
-        prev +
         Enum.at(sums, north_west(r - 1) - 1) +
         Enum.at(sums, north_west(r - 1) - 2)
 
+      #
+      #  *   p
+      #    /---
+      #    | x
+      #
       i == north_west(r) ->
-        prev +
         Enum.at(sums, north_west(r - 1) - 1)
 
+      #
+      #  p   x
+      #    /---
+      #  * | x
+      #    |
+      #    | x
+      #
       i == north_west(r) + 1 ->
-        prev +
         Enum.at(sums, i - 3) +
         Enum.at(sums, north_west(r - 1)) +
         Enum.at(sums, north_west(r - 1) - 1)
 
+      #
+      #  p | x
+      #    |
+      #  * | x
+      #    |
+      #    | x
+      #
       i < south_west(r) - 1 ->
-        prev +
         Enum.at(sums, i - 8 * r + 1) +
         Enum.at(sums, i - 8 * r + 2) +
         Enum.at(sums, i - 8 * r + 3)
 
+      #
+      #  p | x
+      #    |
+      #  * | x
+      #    \---
+      #
       i == south_west(r) - 1 ->
-        prev +
         Enum.at(sums, south_west(r - 1) - 1) +
         Enum.at(sums, south_west(r - 1) - 2)
 
+      #
+      #  p | x
+      #    \---
+      #  *
+      #
       i == south_west(r) ->
-        prev +
         Enum.at(sums, south_west(r - 1) - 1)
 
+      #
+      #  x | x  x
+      #    \------
+      #  p   *
+      #
       i == south_west(r) + 1 ->
-        prev +
         Enum.at(sums, i - 3) +
         Enum.at(sums, south_west(r - 1)) +
         Enum.at(sums, south_west(r - 1) - 1)
 
+      #
+      #  x  x  x
+      # ---------
+      #  p  *
+      #
       i < south_east(r) ->
-        prev +
         Enum.at(sums, i - 8 * r - 1) +
         Enum.at(sums, i - 8 * r ) +
         Enum.at(sums, i - 8 * r + 1)
 
+      #
+      #  x  x |
+      # ------/
+      #  p  *
+      #
       i == south_east(r) ->
-        prev +
         Enum.at(sums, south_east(r - 1)) +
         Enum.at(sums, south_east(r - 1) - 1)
 
       true ->
-        raise "Unknown case for #{i}"
+        raise "Part 2: Unknown case for index #{i}"
     end
 
+    # If the number we found is greater than the threshold, return it. Otherwise
+    # make a recursive call to find the next number.
     cond do
-      next <= number ->
-        sum_after(sums ++ [next], number)
+      next > number ->
+        next
 
       true ->
-        next
+        sum_after(sums ++ [next], number)
     end
   end
 end
 
+# Accept a number as the first argument.
 number = System.argv()
 |> Enum.at(0)
 |> String.to_integer()
 
+# Calculate the distance for part 1.
 number
 |> Advent3.distance()
 |> IO.inspect(label: "Distance")
 
+# Calculate the sum for part 2.
 number
 |> Advent3.sum_after()
 |> IO.inspect(label: "Sum after")
