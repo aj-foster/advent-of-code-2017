@@ -33,6 +33,9 @@ defmodule Advent3 do
   part 2. It also has a number of helpers which describe the algebra of the
   grid's numbers in terms of rings and cardinal directions.
   """
+
+  # The following described numbers at the various poles and axes based on the
+  # ring number. We use these as landmarks throughout the challenge.
   defp east(ring), do: trunc(4 * :math.pow(ring, 2) - 3 * ring + 1)
   defp north_east(ring), do: trunc(4 * :math.pow(ring, 2) - 2 * ring + 1)
   defp north(ring), do: trunc(4 * :math.pow(ring, 2) - ring + 1)
@@ -41,16 +44,6 @@ defmodule Advent3 do
   defp south_west(ring), do: trunc(4 * :math.pow(ring, 2) + 2 * ring + 1)
   defp south(ring), do: trunc(4 * :math.pow(ring, 2) + 3 * ring + 1)
   defp south_east(ring), do: trunc(4 * :math.pow(ring, 2) + 4 * ring + 1)
-
-  defp a <~> b do
-    c = a - b
-
-    cond do
-      c <  0 -> -1
-      c == 0 ->  0
-      c >  0 ->  1
-    end
-  end
 
   @doc """
   Accepts a positive integer and returns the taxi distance to the origin.
@@ -103,8 +96,8 @@ defmodule Advent3 do
 
   # First step: divide between the North+East side and the South+West side.
   defp northeast_or_southwest(number, ring) do
-    case (number <~> north_west(ring)) do
-      -1 ->
+    case number - north_west(ring) do
+      x when x < 0 ->
         # North or East
         north_or_east(number, ring)
 
@@ -113,7 +106,7 @@ defmodule Advent3 do
         # plus the number of rings to get to the origin (r again).
         2 * ring
 
-      1 ->
+      x when x > 0 ->
         # West or South
         west_or_south(number, ring)
     end
@@ -121,8 +114,8 @@ defmodule Advent3 do
 
   # Second step: divide between the North quarter and the East quarter.
   defp north_or_east(number, ring) do
-    case (number <~> north_east(ring)) do
-      -1 ->
+    case number - north_east(ring) do
+      x when x < 0 ->
         # East
         abs(number - east(ring)) + ring
 
@@ -131,7 +124,7 @@ defmodule Advent3 do
         # plus the number of rings to get to the origin (r again).
         2 * ring
 
-      1 ->
+      x when x > 0 ->
         # North
         abs(number - north(ring)) + ring
     end
@@ -139,8 +132,8 @@ defmodule Advent3 do
 
   # Second step: divide between the West quarter and the South quarter.
   defp west_or_south(number, ring) do
-    case (number <~> south_west(ring)) do
-      -1 ->
+    case number - south_west(ring) do
+      x when x < 0 ->
         # West
         abs(number - west(ring)) + ring
 
@@ -149,7 +142,7 @@ defmodule Advent3 do
         # plus the number of rings to get to the origin (r again).
         2 * ring
 
-      1 ->
+      x when x > 0 ->
         # South
         abs(number - south(ring)) + ring
     end
